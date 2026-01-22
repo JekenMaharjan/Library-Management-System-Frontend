@@ -1,5 +1,6 @@
 "use client"
 
+import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar'
 import { createBook, deleteBook, getBooks, updateBook } from '@/lib/api';
 import React, { useEffect, useState } from 'react'
@@ -115,9 +116,7 @@ const BookPage = () => {
 
             <div className="flex-1 ml-70 flex flex-col min-h-screen">
                 {/* Header */}
-                <header className="flex justify-between items-center bg-white shadow-md p-4 h-20 border-b-2 border-b-gray-300">
-                    <h1 className="text-2xl font-bold font-serif">Library Management System</h1>
-                </header>
+                <Header />
 
                 {/* Main Content */}
                 <main className="flex-1 bg-gray-100 p-6 overflow-auto">
