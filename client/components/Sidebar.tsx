@@ -1,57 +1,54 @@
+"use client"
+
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
+import { usePathname } from 'next/navigation' // for highlighting current page
 
 const Sidebar = () => {
+    const pathname = usePathname(); // gets current page
+
+    const links = [
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/student", label: "Student" },
+        { href: "/book", label: "Book" },
+        { href: "/book-issue", label: "Book Issue" },
+    ];
+
     return (
-        <div className='flex flex-col justify-around border-r-2 border-r-gray-300 fixed left-0 top-0 lg:w-70 sm:w-70 h-screen'>
-            {/* Total Sections: 3 */}
+        <div className="flex flex-col bg-orange-50 border-r-2 border-gray-300 fixed top-0 left-0 h-screen w-72 justify-between">
 
-            {/* First Section */}
-            <div className='flex h-40 justify-center items-center gap-3 border-b-2 border-b-gray-300 p-2 pr-5'>
-                <div>
-                    <Image
-                        src="/Library-Logo.png"
-                        alt="Library Logo"
-                        width={100}
-                        height={100}
-                        priority
-                    />
-                </div>
-                <h1 className="flex flex-col items-end font-sans font-bold text-xl leading-tight">
-                    <span>Library</span>
-                    <span>Management</span>
-                    <span>System</span>
-                </h1>
+            {/* First Section: Logo + Title */}
+            <div className="flex flex-col items-center justify-center gap-2 h-30 border-b-2 border-gray-300 p-4 bg-orange-50">
+                <Image
+                    src="/Library-Logo.png"
+                    alt="Library Logo"
+                    width={120}
+                    height={120}
+                    priority
+                />
+                
             </div>
 
-            {/* Second Section */}
-            <div className='flex flex-col gap-4 p-6 h-full'>
-                <Link href="/dashboard">
-                    <button className='w-full bg-purple-300 hover:bg-purple-400 text-purple-800 font-semibold py-3 rounded-lg transition'>
-                        Dashboard
-                    </button>
-                </Link>
-                <Link href="/student">
-                    <button className='w-full bg-purple-300 hover:bg-purple-400 text-purple-800 font-semibold py-3 rounded-lg transition'>
-                        Student
-                    </button>
-                </Link>
-                <Link href="/book">
-                    <button className='w-full bg-purple-300 hover:bg-purple-400 text-purple-800 font-semibold py-3 rounded-lg transition'>
-                        Book
-                    </button>
-                </Link>
-                <Link href="/book-issue">
-                    <button className='w-full bg-purple-300 hover:bg-purple-400 text-purple-800 font-semibold py-3 rounded-lg transition'>
-                        Book Issue
-                    </button>
-                </Link>
+            {/* Second Section: Links */}
+            <div className="flex flex-col gap-4 p-6 h-full">
+                {links.map((item) => (
+                    <Link key={item.href} href={item.href} passHref>
+                        <button
+                            className={`w-full font-semibold py-3 px-4 rounded-lg transition 
+                                ${pathname === item.href
+                                    ? "bg-orange-500 text-white"
+                                    : "bg-orange-300 text-gray-900 hover:bg-orange-400"}`
+                            }
+                        >
+                            {item.label}
+                        </button>
+                    </Link>
+                ))}
             </div>
 
-            {/* Third Section */}
-            <div className='flex h-25 border-t-2 border-t-gray-300 items-center p-5 justify-center'>
-                <p className='bg-orange-200 p-4 rounded-lg italic text-sm font-serif'>
+            {/* Third Section: Quote */}
+            <div className="flex items-center justify-center p-4 border-t-2 border-gray-300 bg-orange-50">
+                <p className="bg-orange-200 p-3 rounded-lg text-gray-900 italic text-sm text-center font-serif">
                     "A room without books is like a body without a soul"
                 </p>
             </div>

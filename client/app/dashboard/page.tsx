@@ -12,7 +12,11 @@ const DashboardPage = () => {
 
                 {/* Topbar / Header */}
                 <header className="flex justify-between items-center bg-white shadow-md p-4 h-20 border-b-2 border-b-gray-300">
-                    <h1 className="text-2xl font-bold font-serif">Welcome to the Library Management System!</h1>
+                    <h1 className="flex gap-10 text-center font-extrabold text-2xl sm:text-3xl tracking-wide">
+                        <span className="text-orange-900 block drop-shadow-md">Library</span>
+                        <span className="text-orange-700 block drop-shadow-md">Management</span>
+                        <span className="text-orange-600 block drop-shadow-md">System</span>
+                    </h1>
                 </header>
 
                 {/* Page content */}
