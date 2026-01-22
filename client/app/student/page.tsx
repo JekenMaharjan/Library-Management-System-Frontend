@@ -30,16 +30,26 @@ const StudentPage = () => {
     };
 
     const addStudent = async (studentData: { name: string; rollNo: string}) => {
+        // Simple validation
+        if (!studentData.name.trim() || !studentData.rollNo.trim()) {
+            alert("Please fill in both Name and Roll No.");
+            return; // stop execution if invalid
+        }
+
         try {
             const newStudent = await createStudent(studentData); // call your API
             setStudents(prev => [...prev, newStudent]); // add to state
         } catch (error) {
             console.error("Failed to add student:", error);
         }
-
     }
 
     const updateStudent = async (studentId: number, updatedData: { name?: string; rollNo?: string }) => {
+        if (!updatedData.name?.trim() || !updatedData.rollNo?.trim()) {
+            alert("Please fill in both Name and Roll No.");
+            return;
+        }
+        
         try {
             const updatedStudent = await updateStudentApi(studentId, updatedData); // call your API
             setStudents(prev => prev.map(s => (s.studentId === studentId ? updatedStudent : s))); // update state
