@@ -28,22 +28,22 @@ const Sidebar = () => {
             {/* Second Section */}
             <div className='flex flex-col gap-4 p-6 h-full'>
                 <Link href="/dashboard">
-                    <button className='w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-lg transition'>
+                    <button className='w-full bg-purple-300 hover:bg-purple-400 text-purple-800 font-semibold py-3 rounded-lg transition'>
                         Dashboard
                     </button>
                 </Link>
                 <Link href="/student">
-                    <button className='w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition'>
+                    <button className='w-full bg-purple-300 hover:bg-purple-400 text-purple-800 font-semibold py-3 rounded-lg transition'>
                         Student
                     </button>
                 </Link>
                 <Link href="/book">
-                    <button className='w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-3 rounded-lg transition'>
+                    <button className='w-full bg-purple-300 hover:bg-purple-400 text-purple-800 font-semibold py-3 rounded-lg transition'>
                         Book
                     </button>
                 </Link>
                 <Link href="/book-issue">
-                    <button className='w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 rounded-lg transition'>
+                    <button className='w-full bg-purple-300 hover:bg-purple-400 text-purple-800 font-semibold py-3 rounded-lg transition'>
                         Book Issue
                     </button>
                 </Link>
