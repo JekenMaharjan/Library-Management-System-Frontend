@@ -1,8 +1,37 @@
+"use client"
+
 import Sidebar from '@/components/Sidebar'
-import React from 'react'
+import { deleteStudent, getStudents } from '@/lib/api';
+import React, { useEffect, useState } from 'react'
+
+type Student = {
+    studentId: number;
+    name: string;
+    rollNo: string;
+};
 
 const StudentPage = () => {
-    
+    const [students, setStudents] = useState<Student[]>([]);
+
+    useEffect(() => {
+        loadStudents();
+    }, []);
+
+    const loadStudents = async () => {
+        try {
+            const data = await getStudents();
+            setStudents(data);
+        }
+        catch (error) {
+            console.error("Failed to fetch students", error);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        await deleteStudent(id);
+        loadStudents(); // refresh list
+    };
+
     return (
         <div className="flex">
             {/* Sidebar (fixed) */}
@@ -29,19 +58,25 @@ const StudentPage = () => {
                         </div>
 
                         {/* Row */}
-                        <div className="grid grid-cols-3 items-center px-6 py-3 hover:bg-gray-50">
-                            <span>Jeken Maharjan</span>
-                            <span>Kan077bct040</span>
+                        {students.map((student) => (
+                            <div
+                                key={student.studentId}
+                                className="grid grid-cols-3 font-mono items-center px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300">
+                                <p>{student.name}</p>
+                                <p>{student.rollNo}</p>
 
-                            <div className="flex justify-center gap-3">
-                                <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-md text-sm">
-                                    Edit
-                                </button>
-                                <button className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-md text-sm">
-                                    Delete
-                                </button>
+                                <div className="flex font-semibold justify-center gap-3">
+                                    <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm">
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(student.studentId)}
+                                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm">
+                                        Delete
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
                 </main>
             </div>
