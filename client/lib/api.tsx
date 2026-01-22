@@ -8,12 +8,33 @@ export const getStudents = async () => {
     return response.data;
 };
 
-export const deleteStudent = async (id: number) => {
-    return axios.delete(`${API_BASE_URL}/students/${id}`);
+export const createStudent = async (studentData: { name: string, rollNo: string}) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/students`, studentData);
+        return response.data; // return the created student
+    }
+    catch (error: any) {
+        console.error("Error creating student:", error.response?.data || error.message);
+        throw error; // re-throw so caller can handle it
+    }
+}
+
+export const updateStudentApi = async (studentId: number, updatedData: { name?: string; rollNo?: string }) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/students/${studentId}`, updatedData);
+        return response.data; // return the updated student
+    } catch (error: any) {
+        console.error("Error updating student:", error.response?.data || error.message);
+        throw error; // re-throw so caller can handle it
+    }
+}
+
+export const deleteStudent = async (studentId: number) => {
+    return axios.delete(`${API_BASE_URL}/students/${studentId}`);
 };
 
-export const updateStudent = async (id: number, data: any) => {
-    return axios.put(`${API_BASE_URL}/students/${id}`, data);
+export const updateStudent = async (studentId: number, data: any) => {
+    return axios.put(`${API_BASE_URL}/students/${studentId}`, data);
 };
 
 // Books

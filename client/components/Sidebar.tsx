@@ -4,7 +4,7 @@ import React from 'react'
 
 const Sidebar = () => {
     return (
-        <div className='flex flex-col justify-around border-r-2 border-r-gray-300 fixed left-0 top-0 lg:w-70 h-screen'>
+        <div className='flex flex-col justify-around border-r-2 border-r-gray-300 fixed left-0 top-0 lg:w-70 sm:w-70 h-screen'>
             {/* Total Sections: 3 */}
 
             {/* First Section */}
