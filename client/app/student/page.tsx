@@ -16,6 +16,7 @@ const StudentPage = () => {
     const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
     const [formData, setFormData] = useState({ name: "", rollNo: "" });
 
+    // Load students on page load
     useEffect(() => {
         loadStudents();
     }, []);
@@ -29,105 +30,106 @@ const StudentPage = () => {
         }
     };
 
-    const addStudent = async (studentData: { name: string; rollNo: string}) => {
-        // Simple validation
-        if (!studentData.name.trim() || !studentData.rollNo.trim()) {
-            alert("Please fill in both Name and Roll No.");
-            return; // stop execution if invalid
-        }
-
+    // Add student
+    const addStudentFrontend = async (studentData: { name: string; rollNo: string }) => {
         try {
-            const newStudent = await createStudent(studentData); // call your API
-            setStudents(prev => [...prev, newStudent]); // add to state
+            const newStudent = await createStudent(studentData);
+            setStudents(prev => [...prev, newStudent]);
         } catch (error) {
-            console.error("Failed to add student:", error);
+            console.error("Failed to create student", error);
         }
     }
 
-    const updateStudent = async (studentId: number, updatedData: { name?: string; rollNo?: string }) => {
-        if (!updatedData.name?.trim() || !updatedData.rollNo?.trim()) {
-            alert("Please fill in both Name and Roll No.");
-            return;
-        }
-        
-        try {
-            const updatedStudent = await updateStudentApi(studentId, updatedData); // call your API
-            setStudents(prev => prev.map(s => (s.studentId === studentId ? updatedStudent : s))); // update state
-        } catch (error) {
-            console.log("Failed to update student:", error);
-        }
-    }
-
-    const handleDelete = async (studentId: number) => {
-        await deleteStudent(studentId);
-        loadStudents(); // refresh list
+    // Update student in frontend
+    const updateStudentFrontend = (studentId: number, updatedData: { name: string; rollNo: string }) => {
+        setStudents(prev =>
+            prev.map(s => s.studentId === studentId ? { ...s, ...updatedData } : s)
+        );
     };
 
+    // Open Add modal
     const openAddModal = () => {
         setCurrentStudent(null);
         setFormData({ name: "", rollNo: "" });
         setIsModalOpen(true);
     };
 
+    // Open Edit modal
     const openEditModal = (student: Student) => {
         setCurrentStudent(student);
         setFormData({ name: student.name, rollNo: student.rollNo });
         setIsModalOpen(true);
     };
 
+    // Handle form submit
     const handleSubmit = () => {
-        if (currentStudent) {
-            updateStudent(currentStudent.studentId, formData);
-        } else {
-            addStudent(formData);
+        // Validation
+        if (!formData.name.trim() || !formData.rollNo.trim()) {
+            alert("Please fill in both Name and Roll No.");
+            return;
         }
+
+        if (currentStudent) {
+            // Update frontend
+            updateStudentFrontend(currentStudent.studentId, formData);
+
+            // Update backend
+            updateStudentApi(currentStudent.studentId, formData);
+        } else {
+            // Add frontend + backend
+            addStudentFrontend(formData);
+        }
+
         setIsModalOpen(false);
+    };
+
+    // Delete student
+    const handleDelete = async (id: number) => {
+        await deleteStudent(id);
+        loadStudents();
     };
 
     return (
         <div className="flex">
-            {/* Sidebar (fixed) */}
             <Sidebar />
 
-            {/* Main content area */}
             <div className="flex-1 ml-70 flex flex-col min-h-screen">
-
-                {/* Topbar / Header */}
+                {/* Header */}
                 <header className="flex justify-between items-center bg-white shadow-md p-4 h-20 border-b-2 border-b-gray-300">
-                    <h1 className="text-2xl font-bold font-serif">Welcome to the Library Management System!</h1>
+                    <h1 className="text-2xl font-bold font-serif">Library Management System</h1>
                 </header>
 
-                {/* Page content */}
+                {/* Main content */}
                 <main className="flex-1 bg-gray-100 p-6 overflow-auto">
-                    <div className='flex justify-between px-2 items-center mb-6'>
+                    <div className='flex justify-between items-center px-3 mb-6'>
                         <h1 className="text-2xl font-semibold">Students</h1>
-                        <button 
-                        onClick={() => openAddModal()}
-                        className='bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-md font-semibold'>
+                        <button
+                            onClick={openAddModal}
+                            className='bg-green-500 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-600 transition'>
                             Add
                         </button>
                     </div>
 
+                    {/* Students Table */}
                     <div className="bg-white rounded-lg shadow overflow-hidden">
-                        {/* Header */}
                         <div className="grid grid-cols-3 font-semibold bg-gray-300 px-6 py-3">
                             <span>Name</span>
                             <span>Roll No</span>
                             <span className="text-center">Actions</span>
                         </div>
 
-                        {/* Row */}
-                        {students.map((student) => (
+                        {students.map(student => (
                             <div
                                 key={student.studentId}
-                                className="grid grid-cols-3 items-center px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300">
+                                className="grid grid-cols-3 items-center px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300"
+                            >
                                 <p className='font-mono'>{student.name}</p>
                                 <p className='font-mono'>{student.rollNo}</p>
 
                                 <div className="flex font-semibold justify-center gap-3">
-                                    <button 
+                                    <button
                                         onClick={() => openEditModal(student)}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm">
+                                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm">
                                         Edit
                                     </button>
                                     <button
@@ -142,7 +144,7 @@ const StudentPage = () => {
 
                     {/* Modal */}
                     {isModalOpen && (
-                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm transition duration-300 flex justify-center items-center z-50">
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
                             <div className="bg-white rounded-lg shadow-lg w-80 p-6">
                                 <h2 className="text-xl font-semibold mb-4">
                                     {currentStudent ? "Edit Student" : "Add Student"}
@@ -174,7 +176,7 @@ const StudentPage = () => {
                                     </button>
                                     <button
                                         className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
-                                        onClick={handleSubmit}
+                                        onClick={handleSubmit} 
                                     >
                                         {currentStudent ? "Update" : "Add"}
                                     </button>
@@ -182,6 +184,7 @@ const StudentPage = () => {
                             </div>
                         </div>
                     )}
+
                 </main>
             </div>
         </div>

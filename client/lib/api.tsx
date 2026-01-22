@@ -1,14 +1,15 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5000/api"; // change if needed
+const API_BASE_URL = "http://localhost:5000/api";
 
-// Students
+// ================================ Students ================================
+
 export const getStudents = async () => {
     const response = await axios.get(`${API_BASE_URL}/students`);
     return response.data;
 };
 
-export const createStudent = async (studentData: { name: string, rollNo: string}) => {
+export const createStudent = async (studentData: { name: string, rollNo: string }) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/students`, studentData);
         return response.data; // return the created student
@@ -37,10 +38,33 @@ export const updateStudent = async (studentId: number, data: any) => {
     return axios.put(`${API_BASE_URL}/students/${studentId}`, data);
 };
 
-// Books
+
+// ================================ Books ================================
+
 export const getBooks = async () => {
     const response = await axios.get(`${API_BASE_URL}/books`);
     return response.data;
+};
+
+export const createBook = async (bookData: {title: string; author: string; totalStock: number}) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/books`, bookData);
+        return response.data;
+    } catch (error: any) {
+        console.error("Error creating book:", error.response?.data || error.message);
+        throw error; // re-throw so caller can handle it
+    }
+}
+
+// Update book API
+export const updateBook = async (bookId: number, updatedData: { title?: string; author?: string; totalStock?: number }) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/books/${bookId}`, updatedData);
+        return response.data; // return updated book
+    } catch (error: any) {
+        console.error("Failed to update book:", error.response?.data || error.message);
+        throw error; // re-throw for caller to handle
+    }
 };
 
 export const deleteBook = async (id: number) => {
