@@ -15,10 +15,11 @@ const Sidebar = () => {
     ];
 
     return (
-        <div className="flex flex-col bg-orange-50 border-r-2 border-gray-300 fixed top-0 left-0 h-screen w-72 justify-between">
+        <div className="flex flex-col border-r-2 border-orange-300 fixed top-0 left-0 h-screen w-72 justify-between
+                bg-gradient-to-b from-orange-200 to-white">
 
             {/* First Section: Logo + Title */}
-            <div className="flex flex-col items-center justify-center gap-2 h-30 border-b-2 border-gray-300 p-4 bg-orange-50">
+            <div className="flex flex-col items-center justify-center gap-2 h-30 border-b-2 border-orange-300 p-4">
                 <Image
                     src="/Library-Logo.png"
                     alt="Library Logo"
@@ -30,11 +31,11 @@ const Sidebar = () => {
             </div>
 
             {/* Second Section: Links */}
-            <div className="flex flex-col gap-4 p-6 h-full">
+            <div className="flex flex-col gap-4 p-6 mx-5 h-full">
                 {links.map((item) => (
                     <Link key={item.href} href={item.href} passHref>
                         <button
-                            className={`w-full font-semibold py-3 px-4 rounded-lg transition 
+                            className={`w-full text-start font-semibold py-3 px-4 rounded-lg transition 
                                 ${pathname === item.href
                                     ? "bg-orange-500 text-white"
                                     : "bg-orange-300 text-gray-900 hover:bg-orange-400"}`
@@ -47,7 +48,7 @@ const Sidebar = () => {
             </div>
 
             {/* Third Section: Quote */}
-            <div className="flex items-center justify-center p-4 border-t-2 border-gray-300 bg-orange-50">
+            <div className="flex items-center justify-center p-4 border-t-2 border-orange-300 bg-orange-50">
                 <p className="bg-orange-200 p-3 rounded-lg text-gray-900 italic text-sm text-center font-serif">
                     "A room without books is like a body without a soul"
                 </p>
