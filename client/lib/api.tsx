@@ -58,7 +58,7 @@ export const deleteStudent = async (studentId: number) => {
 // ================================ Books ================================
 
 // Create book
-export const createBook = async (bookData: {title: string; author: string; totalStock: number}) => {
+export const createBook = async (bookData: { title: string; author: string; totalStock: number }) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/books`, bookData);
         return response.data;
@@ -114,3 +114,19 @@ export const getIssueBooks = async () => {
     const response = await axios.get(`${API_BASE_URL}/issues`);
     return response.data;
 };
+
+// Search issued books by book title
+export const searchIssueBooks = async (title: string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/issues`, {
+            params: { title } // automatically sends ?title=xyz
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error(
+            "Error searching books:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+}

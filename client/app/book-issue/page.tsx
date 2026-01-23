@@ -2,7 +2,7 @@
 
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar'
-import { getBooks, getIssueBooks } from '@/lib/api';
+import { getBooks, getIssueBooks, searchBooks, searchIssueBooks } from '@/lib/api';
 import React, { useEffect, useState } from 'react'
 import { IoMdSearch } from 'react-icons/io';
 import { ImCross } from "react-icons/im";
@@ -14,7 +14,7 @@ type IssueBook = {
     studentName: string;
     issueDate: string;
     returnDate: string | null;
-    returnStatus: boolean;
+    isReturned: boolean;
 };
 
 type Book = {
@@ -30,6 +30,8 @@ const BookIssuePage = () => {
     // const [isModalOpen, setIsModalOpen] = useState(false);
     // const [currentBook, setCurrentBook] = useState<Book | null>(null);
     // const [formData, setFormData] = useState({ title: "", author: "", totalStock: "" });
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchIssueQuery, setSearchIssueQuery] = useState("");
 
     // Load IssuedBooks from API
     useEffect(() => {
@@ -61,32 +63,35 @@ const BookIssuePage = () => {
     const formatStatus = (value?: boolean) => 
         value === true ? <FaCheck className='text-green-500' /> : <ImCross className='text-red-500' />;
 
-    
-    /*
-    // Add new book
-    const addBookFrontend = async (bookData: { title: string; author: string; totalStock: number }) => {
+    // Search available books by title
+    const handleAvaBooksSearch = async () => {
         try {
-            const newBook = await createBook(bookData);
-            setBooks(prev => [...prev, newBook]);
+            if (!searchQuery.trim()) {
+                loadBooks(); // show all books if search is empty
+                return;
+            }
+            const data = await searchBooks(searchQuery); // search by rollNo
+            setBooks(data);
         } catch (error) {
-            console.error("Failed to create book", error);
+            console.error("Search failed", error);
         }
-    }
-
-    // Update book frontend
-    const updateBookFrontend = (bookId: number, updatedData: { title?: string; author?: string; totalStock?: string }) => {
-        const updatedBook = {
-            bookId,
-            title: updatedData.title || "",
-            author: updatedData.author || "",
-            totalStock: updatedData.totalStock ? Number(updatedData.totalStock) : 0,
-        };
-
-        setBooks(prevBooks =>
-            prevBooks.map(b => (b.bookId === bookId ? updatedBook : b))
-        );
     };
 
+    // Search issued books by title
+    const handleIssuedSearch = async () => {
+        try {
+            if (!searchIssueQuery.trim()) {
+                loadIssueBooks(); // show all issuedBooks if search is empty
+                return;
+            }
+            const data = await searchIssueBooks(searchIssueQuery); // search by title
+            setIssueBooks(data);
+        } catch (error) {
+            console.error("Search failed", error);
+        }
+    };
+
+    /*
     // Open Add Modal
     const openAddModal = () => {
         setCurrentBook(null);
@@ -135,11 +140,7 @@ const BookIssuePage = () => {
         setIsModalOpen(false);
     };
 
-    // Delete book
-    const handleDelete = async (id: number) => {
-        await deleteBook(id);
-        loadBooks();
-    };
+    
     */
 
     return (
@@ -152,25 +153,30 @@ const BookIssuePage = () => {
 
                 {/* Main Content */}
                 <main className="flex-1 p-6 overflow-auto">
-                    <div className='flex justify-between items-center px-3 mb-6'>
-                        <h1 className="text-2xl text-orange-600 font-semibold">Book Circulation</h1>
-                        <div className='flex'>
+                    <div className='flex justify-between items-center px-3 mb-5'>
+                        <h1 className="text-3xl text-orange-600 font-semibold">Book Circulation</h1>
+                        <div className='flex h-10'>
                             <span className='flex items-center border rounded-xl'>
                                 <input
                                     type="text"
                                     placeholder="Search by Title..."
-                                    className="border-r border-gray-400 focus:outline-0 rounded-l-xl px-3 py-3"
+                                    className="border-r border-gray-400 text-sm focus:outline-0 rounded-l-xl px-3 py-2"
+                                    value={searchIssueQuery}
+                                    onChange={(a) => setSearchIssueQuery(a.target.value)}
                                 />
-                                <button className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'>
-                                    <IoMdSearch size={29} />
+                                <button
+                                    onClick={handleIssuedSearch}
+                                    className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'>
+                                        <IoMdSearch size={29} />
                                 </button>
+
                             </span>
                         </div>
                     </div>
 
                     {/* Issued Books Table */}
                     <div className="bg-white border-2 border-orange-200 rounded-lg shadow overflow-hidden mb-10">
-                        <div className="grid grid-cols-6 place-items-center font-semibold bg-orange-200 px-6 py-3">
+                        <div className="grid grid-cols-6 place-items-center font-semibold bg-orange-200 px-6 py-2">
                             <span>Title</span>
                             <span>Name</span>
                             <span>Issue Date</span>
@@ -179,74 +185,87 @@ const BookIssuePage = () => {
                             <span>Action</span>
                         </div>
 
-                        {issueBooks.map((issueBook) => (
-                            <div
-                                key={issueBook.issueId}
-                                className="grid grid-cols-6 place-items-center px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300"
-                            >
-                                <p className='font-mono'>{issueBook.bookTitle}</p>
-                                <p className='font-mono'>{issueBook.studentName}</p>
-                                <p className="font-mono">{formatDate(issueBook.issueDate)}</p>
-                                <p className="font-mono">{formatDate(issueBook.returnDate)}</p>
-                                <p className='font-mono'>{formatStatus(issueBook.returnStatus)}</p>
+                        {issueBooks.length === 0 ? (
+                            <p className='p-4 text-center text-sm text-gray-500'>No Books Found...</p>
+                        ) : (
+                            issueBooks.map(issueBook => (
+                                <div
+                                    key={issueBook.issueId}
+                                    className="grid grid-cols-6 place-items-center px-6 hover:bg-gray-50 border-t border-t-gray-300"
+                                >
+                                    <p className='font-mono text-sm'>{issueBook.bookTitle}</p>
+                                    <p className='font-mono text-sm'>{issueBook.studentName}</p>
+                                    <p className="font-mono text-sm">{formatDate(issueBook.issueDate)}</p>
+                                    <p className="font-mono text-sm">{issueBook.returnDate ? formatDate(issueBook.returnDate) : "-"}</p>
+                                    <p className='font-mono text-sm'>{formatStatus(issueBook.isReturned)}</p>
 
-                                <div className="font-semibold">
-                                    <button
-                                        
-                                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm">
-                                        Return Book
-                                    </button>
+                                    <div className="flex font-semibold justify-center gap-3 py-2">
+                                        <button
+                                            // onClick={}
+                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md text-sm">
+                                            Return Book
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
 
                     {/* Thicker solid bar */}
-                    <hr className="my-7 h-1 bg-orange-400 border-0" />
+                    {/* <hr className="my-7 h-1 bg-orange-400 border-0" /> */}
 
                     {/* Books Table */}
-                    <div className='flex justify-between items-center px-3 mb-6'>
-                        <h1 className="text-2xl text-orange-600 font-semibold mb-5">Reserveable Book</h1>
-                        <div className='flex'>
+                    <div className='flex justify-between items-center px-3 mb-5'>
+                        <h1 className="text-3xl text-orange-600 font-semibold">Available Book</h1>
+                        <div className='flex h-10'>
                             <span className='flex items-center border rounded-xl'>
                                 <input
                                     type="text"
                                     placeholder="Search by Title..."
-                                    className="border-r border-gray-400 focus:outline-0 rounded-l-xl px-3 py-3"
+                                    className="border-r border-gray-400 text-sm focus:outline-0 rounded-l-xl px-3 py-2"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
                                 />
-                                <button className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'>
+                                <button 
+                                    onClick={handleAvaBooksSearch}
+                                    className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'>
                                     <IoMdSearch size={29} />
                                 </button>
                             </span>
                         </div>
                     </div>
                     
-                    <div className="bg-white border-2 border-orange-200 rounded-lg shadow overflow-hidden">
-                        <div className="grid grid-cols-4 place-items-center font-semibold bg-orange-200 px-6 py-3">
+                    {/* Available Books */}
+                    <div className="bg-white border-2 border-orange-200 rounded-lg shadow-md overflow-hidden">
+                        <div className="grid grid-cols-4 place-items-center font-semibold bg-orange-200 px-6 py-2">
                             <span>Title</span>
                             <span>Author</span>
                             <span>Stock</span>
                             <span>Action</span>
                         </div>
 
-                        {books.map((book) => (
-                            <div
-                                key={book.bookId}
-                                className="grid grid-cols-4 place-items-center px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300"
-                            >
-                                <p className='font-mono'>{book.title}</p>
-                                <p className='font-mono'>{book.author}</p>
-                                <p className='font-mono'>{book.totalStock}</p>
+                        {books.length === 0 ? (
+                            <p className='p-4 text-center text-sm text-gray-500'>No Books Found...</p>
+                        ) : ( 
+                            books.map((book) => (
+                                <div
+                                    key={book.bookId}
+                                    className="grid grid-cols-4 place-items-center px-6 hover:bg-gray-50 border-t border-t-gray-300"
+                                >
+                                    <p className='font-mono text-sm'>{book.title}</p>
+                                    <p className='font-mono text-sm'>{book.author}</p>
+                                    <p className='font-mono text-sm'>{book.totalStock}</p>
 
-                                <div className="font-semibold">
-                                    <button
-
-                                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm">
-                                        Reserve Book
-                                    </button>
+                                    <div className="flex font-semibold justify-center gap-3 py-2">
+                                        <button
+                                            // onClick={}
+                                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-md text-sm">
+                                            Reserve Book
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
 
                     {/* Modal
