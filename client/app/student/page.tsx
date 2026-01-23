@@ -2,7 +2,7 @@
 
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar'
-import { createStudent, deleteStudent, getStudents, updateStudentApi } from '@/lib/api';
+import { createStudent, deleteStudent, getStudents, searchStudents, updateStudentApi } from '@/lib/api';
 import React, { useEffect, useState } from 'react'
 import { IoMdSearch } from "react-icons/io";
 
@@ -17,20 +17,39 @@ const StudentPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
     const [formData, setFormData] = useState({ name: "", rollNo: "" });
+    const [searchQuery, setSearchQuery] = useState("");
 
-    // Load students on page load
+    // Load all students on page load
     useEffect(() => {
-        loadStudents();
+        fetchStudents(); // no name = load all
     }, []);
 
-    const loadStudents = async () => {
+    // Load all students
+    const fetchStudents = async () => {
         try {
-            const data = await getStudents();
+            const data = await getStudents(); // use API function
             setStudents(data);
         } catch (error) {
             console.error("Failed to fetch students", error);
         }
     };
+
+
+    // Search student by roll number
+    const handleSearch = async () => {
+        try {
+            if (!searchQuery.trim()) {
+                fetchStudents(); // show all students if search is empty
+                return;
+            }
+
+            const data = await searchStudents(searchQuery); // search by rollNo
+            setStudents(data);
+        } catch (error) {
+            console.error("Search failed", error);
+        }
+    };
+
 
     // Add student
     const addStudentFrontend = async (studentData: { name: string; rollNo: string }) => {
@@ -88,7 +107,7 @@ const StudentPage = () => {
     // Delete student
     const handleDelete = async (id: number) => {
         await deleteStudent(id);
-        loadStudents();
+        fetchStudents();
     };
 
     return (
@@ -101,16 +120,21 @@ const StudentPage = () => {
 
                 {/* Main content */}
                 <main className="flex-1 p-6 overflow-auto">
-                    <div className='flex justify-between items-center px-3 mb-6'>
-                        <h1 className="text-2xl text-orange-600 font-semibold">Student Records</h1>
-                        <div className='flex gap-10'>
+                    <div className='flex justify-between items-center px-3 mb-5'>
+                        <h1 className="text-3xl text-orange-600 font-semibold">Student Records</h1>
+                        <div className='flex gap-10 h-10'>
                             <span className='flex items-center border rounded-xl'>
                                 <input
                                     type="text"
-                                    placeholder="Search by Name..."
-                                    className="border-r border-gray-400 focus:outline-0 rounded-l-xl px-3 py-3"
+                                    placeholder="Search by Roll No..."
+                                    className="border-r text-sm border-gray-400 focus:outline-0 rounded-l-xl px-3 py-2"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
                                 />
-                                <button className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'>
+                                <button 
+                                    onClick={handleSearch}
+                                    className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'
+                                >
                                     <IoMdSearch size={29} />
                                 </button>
                             </span>
@@ -124,34 +148,38 @@ const StudentPage = () => {
 
                     {/* Students Table */}
                     <div className="bg-white border-2 border-orange-200 rounded-lg shadow-md overflow-hidden">
-                        <div className="grid grid-cols-3 text-gray-900 font-semibold text-md bg-orange-200 px-6 py-3">
+                        <div className="grid grid-cols-3 place-items-center text-gray-900 font-semibold bg-orange-200 px-6 py-2">
                             <span>Name</span>
                             <span>Roll No</span>
-                            <span className="text-center">Actions</span>
+                            <span>Actions</span>
                         </div>
 
-                        {students.map(student => (
-                            <div
-                                key={student.studentId}
-                                className="grid grid-cols-3 items-center text-sm px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300"
-                            >
-                                <p className='font-mono'>{student.name}</p>
-                                <p className='font-mono'>{student.rollNo}</p>
+                        {students.length === 0 ? (
+                            <p className='p-4 text-center text-gray-500'>No Students Found...</p>
+                        ) : ( 
+                            students.map(student => (
+                                <div
+                                    key={student.studentId}
+                                    className="grid grid-cols-3 place-items-center px-6 hover:bg-gray-50 border-t border-t-gray-300"
+                                >
+                                    <p className='font-mono text-sm'>{student.name}</p>
+                                    <p className='font-mono text-sm'>{student.rollNo}</p>
 
-                                <div className="flex font-semibold justify-center gap-3">
-                                    <button
-                                        onClick={() => openEditModal(student)}
-                                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm">
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(student.studentId)}
-                                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm">
-                                        Delete
-                                    </button>
+                                    <div className="flex font-semibold justify-center gap-3 py-2">
+                                        <button
+                                            onClick={() => openEditModal(student)}
+                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md text-sm">
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(student.studentId)}
+                                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-md text-sm">
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))      
+                        )}
                     </div>
 
                     {/* Modal */}

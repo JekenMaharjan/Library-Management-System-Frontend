@@ -4,11 +4,7 @@ const API_BASE_URL = "http://localhost:5000/api";
 
 // ================================ Students ================================
 
-export const getStudents = async () => {
-    const response = await axios.get(`${API_BASE_URL}/students`);
-    return response.data;
-};
-
+// Create student
 export const createStudent = async (studentData: { name: string, rollNo: string }) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/students`, studentData);
@@ -20,6 +16,29 @@ export const createStudent = async (studentData: { name: string, rollNo: string 
     }
 }
 
+// Get all students
+export const getStudents = async () => {
+    const response = await axios.get(`${API_BASE_URL}/students`);
+    return response.data;
+};
+
+// Search student by roll number
+export const searchStudents = async (rollNo: string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/students`, {
+            params: { rollNo } // sends ?rollNo=XYZ automatically
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error(
+            "Error searching student:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
+
+// Update student details
 export const updateStudentApi = async (studentId: number, updatedData: { name?: string; rollNo?: string }) => {
     try {
         const response = await axios.put(`${API_BASE_URL}/students/${studentId}`, updatedData);
@@ -30,12 +49,9 @@ export const updateStudentApi = async (studentId: number, updatedData: { name?: 
     }
 }
 
+// Delete student
 export const deleteStudent = async (studentId: number) => {
     return axios.delete(`${API_BASE_URL}/students/${studentId}`);
-};
-
-export const updateStudent = async (studentId: number, data: any) => {
-    return axios.put(`${API_BASE_URL}/students/${studentId}`, data);
 };
 
 

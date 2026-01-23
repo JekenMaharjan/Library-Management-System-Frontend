@@ -144,17 +144,17 @@ const BookPage = () => {
 
                     {/* Books Table */}
                     <div className="bg-white border-2 border-orange-200 rounded-lg shadow overflow-hidden">
-                        <div className="grid grid-cols-4 font-semibold bg-orange-200 px-6 py-3">
+                        <div className="grid grid-cols-4 place-items-center font-semibold bg-orange-200 px-6 py-2">
                             <span>Title</span>
                             <span>Author</span>
                             <span>Stock</span>
-                            <span className="text-center">Actions</span>
+                            <span>Actions</span>
                         </div>
 
                         {books.map((book) => (
                             <div
                                 key={book.bookId}
-                                className="grid grid-cols-4 items-center px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300"
+                                className="grid grid-cols-4 place-items-center px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300"
                             >
                                 <p className='font-mono'>{book.title}</p>
                                 <p className='font-mono'>{book.author}</p>
