@@ -70,3 +70,11 @@ export const updateBook = async (bookId: number, updatedData: { title?: string; 
 export const deleteBook = async (id: number) => {
     return axios.delete(`${API_BASE_URL}/books/${id}`);
 };
+
+
+// ================================ Issue Book ================================
+
+export const getIssueBooks = async () => {
+    const response = await axios.get(`${API_BASE_URL}/issues`);
+    return response.data;
+};

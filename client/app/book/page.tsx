@@ -122,7 +122,7 @@ const BookPage = () => {
                 {/* Main Content */}
                 <main className="flex-1 p-6 overflow-auto">
                     <div className='flex justify-between items-center px-3 mb-6'>
-                        <h1 className="text-2xl font-semibold">Books</h1>
+                        <h1 className="text-2xl text-orange-600 font-semibold">Book Records</h1>
                         <div className='flex gap-10'>
                             <span className='flex items-center border rounded-xl'>
                                 <input
@@ -137,14 +137,14 @@ const BookPage = () => {
                             <button
                                 onClick={openAddModal}
                                 className='bg-green-500 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-600 transition'>
-                                Add
+                                + Add
                             </button>
                         </div>
                     </div>
 
                     {/* Books Table */}
-                    <div className="bg-white rounded-lg shadow overflow-hidden">
-                        <div className="grid grid-cols-4 font-semibold bg-gray-300 px-6 py-3">
+                    <div className="bg-white border-2 border-orange-200 rounded-lg shadow overflow-hidden">
+                        <div className="grid grid-cols-4 font-semibold bg-orange-200 px-6 py-3">
                             <span>Title</span>
                             <span>Author</span>
                             <span>Stock</span>

@@ -9,9 +9,9 @@ const Sidebar = () => {
 
     const links = [
         { href: "/dashboard", label: "Dashboard" },
-        { href: "/student", label: "Student" },
-        { href: "/book", label: "Book" },
-        { href: "/book-issue", label: "Book Issue" },
+        { href: "/student", label: "Student Records" },
+        { href: "/book", label: "Book Records" },
+        { href: "/book-issue", label: "Book Circulation" },
     ];
 
     return (
