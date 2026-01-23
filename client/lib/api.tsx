@@ -57,11 +57,7 @@ export const deleteStudent = async (studentId: number) => {
 
 // ================================ Books ================================
 
-export const getBooks = async () => {
-    const response = await axios.get(`${API_BASE_URL}/books`);
-    return response.data;
-};
-
+// Create book
 export const createBook = async (bookData: {title: string; author: string; totalStock: number}) => {
     try {
         const response = await axios.post(`${API_BASE_URL}/books`, bookData);
@@ -71,6 +67,28 @@ export const createBook = async (bookData: {title: string; author: string; total
         throw error; // re-throw so caller can handle it
     }
 }
+
+// Get all books
+export const getBooks = async () => {
+    const response = await axios.get(`${API_BASE_URL}/books`);
+    return response.data;
+};
+
+// Search books by title
+export const searchBooks = async (title: string) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/books`, {
+            params: { title } // sends ?title=xyz
+        });
+        return response.data;
+    } catch (error: any) {
+        console.error(
+            "Error searching books:",
+            error.response?.data || error.message
+        );
+        throw error;
+    }
+};
 
 // Update book API
 export const updateBook = async (bookId: number, updatedData: { title?: string; author?: string; totalStock?: number }) => {
@@ -83,6 +101,7 @@ export const updateBook = async (bookId: number, updatedData: { title?: string; 
     }
 };
 
+// Delete book
 export const deleteBook = async (id: number) => {
     return axios.delete(`${API_BASE_URL}/books/${id}`);
 };
@@ -90,6 +109,7 @@ export const deleteBook = async (id: number) => {
 
 // ================================ Issue Book ================================
 
+// Get all issued books
 export const getIssueBooks = async () => {
     const response = await axios.get(`${API_BASE_URL}/issues`);
     return response.data;

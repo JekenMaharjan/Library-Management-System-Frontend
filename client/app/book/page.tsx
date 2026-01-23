@@ -2,7 +2,7 @@
 
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar'
-import { createBook, deleteBook, getBooks, updateBook } from '@/lib/api';
+import { createBook, deleteBook, getBooks, searchBooks, updateBook } from '@/lib/api';
 import React, { useEffect, useState } from 'react'
 import { IoMdSearch } from 'react-icons/io';
 
@@ -18,6 +18,7 @@ const BookPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentBook, setCurrentBook] = useState<Book | null>(null);
     const [formData, setFormData] = useState({ title: "", author: "", totalStock: "" });
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Load books from API
     useEffect(() => {
@@ -30,6 +31,21 @@ const BookPage = () => {
             setBooks(data);
         } catch (error) {
             console.error("Failed to fetch Books", error);
+        }
+    };
+
+    // Search student by title
+    const handleSearch = async () => {
+        try {
+            if (!searchQuery.trim()) {
+                loadBooks(); // show all students if search is empty
+                return;
+            }
+
+            const data = await searchBooks(searchQuery); // search by rollNo
+            setBooks(data);
+        } catch (error) {
+            console.error("Search failed", error);
         }
     };
 
@@ -121,29 +137,34 @@ const BookPage = () => {
 
                 {/* Main Content */}
                 <main className="flex-1 p-6 overflow-auto">
-                    <div className='flex justify-between items-center px-3 mb-6'>
-                        <h1 className="text-2xl text-orange-600 font-semibold">Book Records</h1>
-                        <div className='flex gap-10'>
+                    <div className='flex justify-between items-center px-3 mb-5'>
+                        <h1 className="text-3xl text-orange-600 font-semibold">Book Records</h1>
+                        <div className='flex gap-10 h-10'>
                             <span className='flex items-center border rounded-xl'>
                                 <input
                                     type="text"
                                     placeholder="Search by Title..."
-                                    className="border-r border-gray-400 focus:outline-0 rounded-l-xl px-3 py-3"
+                                    className="border-r text-sm border-gray-400 focus:outline-0 rounded-l-xl px-3 py-2"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
                                 />
-                                <button className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'>
+                                <button 
+                                    onClick={handleSearch}
+                                    className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'
+                                >
                                     <IoMdSearch size={29} />
                                 </button>
                             </span>
                             <button
                                 onClick={openAddModal}
-                                className='bg-green-500 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-600 transition'>
-                                + Add
+                                className='bg-green-500 px-6 rounded-md text-white font-semibold hover:bg-green-600 transition'>
+                                + Add Book
                             </button>
                         </div>
                     </div>
 
                     {/* Books Table */}
-                    <div className="bg-white border-2 border-orange-200 rounded-lg shadow overflow-hidden">
+                    <div className="bg-white border-2 border-orange-200 rounded-lg shadow-md overflow-hidden">
                         <div className="grid grid-cols-4 place-items-center font-semibold bg-orange-200 px-6 py-2">
                             <span>Title</span>
                             <span>Author</span>
@@ -151,29 +172,33 @@ const BookPage = () => {
                             <span>Actions</span>
                         </div>
 
-                        {books.map((book) => (
-                            <div
-                                key={book.bookId}
-                                className="grid grid-cols-4 place-items-center px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300"
-                            >
-                                <p className='font-mono'>{book.title}</p>
-                                <p className='font-mono'>{book.author}</p>
-                                <p className='font-mono'>{book.totalStock}</p>
+                        {books.length === 0 ? (
+                            <p className='p-4 text-center text-gray-500'>No Books Found...</p>
+                        ) : ( 
+                            books.map(book => (
+                                <div
+                                    key={book.bookId}
+                                    className="grid grid-cols-4 place-items-center px-6 hover:bg-gray-50 border-t border-t-gray-300"
+                                >
+                                    <p className='font-mono text-sm'>{book.title}</p>
+                                    <p className='font-mono text-sm'>{book.author}</p>
+                                    <p className='font-mono text-sm'>{book.totalStock}</p>
 
-                                <div className="flex font-semibold justify-center gap-3">
-                                    <button
-                                        onClick={() => openEditModal(book)}
-                                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm">
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(book.bookId)}
-                                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm">
-                                        Delete
-                                    </button>
+                                    <div className="flex font-semibold justify-center gap-3 py-2">
+                                        <button
+                                            onClick={() => openEditModal(book)}
+                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md text-sm">
+                                            Edit
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(book.bookId)}
+                                            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-md text-sm">
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
 
                     {/* Modal */}

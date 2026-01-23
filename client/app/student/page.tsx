@@ -50,7 +50,6 @@ const StudentPage = () => {
         }
     };
 
-
     // Add student
     const addStudentFrontend = async (studentData: { name: string; rollNo: string }) => {
         try {
