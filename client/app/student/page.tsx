@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar'
 import { createStudent, deleteStudent, getStudents, updateStudentApi } from '@/lib/api';
 import React, { useEffect, useState } from 'react'
+import { IoMdSearch } from "react-icons/io";
 
 type Student = {
     studentId: number;
@@ -99,19 +100,31 @@ const StudentPage = () => {
                 <Header />
 
                 {/* Main content */}
-                <main className="flex-1 bg-gray-100 p-6 overflow-auto">
+                <main className="flex-1 p-6 overflow-auto">
                     <div className='flex justify-between items-center px-3 mb-6'>
-                        <h1 className="text-2xl font-semibold">Students</h1>
-                        <button
-                            onClick={openAddModal}
-                            className='bg-green-500 px-4 py-2 rounded-md text-white font-semibold hover:bg-green-600 transition'>
-                            Add
-                        </button>
+                        <h1 className="text-2xl text-orange-600 font-semibold">Student Records</h1>
+                        <div className='flex gap-10'>
+                            <span className='flex items-center border rounded-xl'>
+                                <input
+                                    type="text"
+                                    placeholder="Search by Name..."
+                                    className="border-r border-gray-400 focus:outline-0 rounded-l-xl px-3 py-3"
+                                />
+                                <button className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'>
+                                    <IoMdSearch size={29} />
+                                </button>
+                            </span>
+                            <button
+                                onClick={openAddModal}
+                                className='bg-green-500 px-6 rounded-md text-white font-semibold hover:bg-green-600 transition'>
+                                + Add Student
+                            </button>
+                        </div>
                     </div>
 
                     {/* Students Table */}
-                    <div className="bg-white rounded-lg shadow overflow-hidden">
-                        <div className="grid grid-cols-3 font-semibold bg-gray-300 px-6 py-3">
+                    <div className="bg-white border-2 border-orange-200 rounded-lg shadow-md overflow-hidden">
+                        <div className="grid grid-cols-3 text-gray-900 font-semibold text-md bg-orange-200 px-6 py-3">
                             <span>Name</span>
                             <span>Roll No</span>
                             <span className="text-center">Actions</span>
@@ -120,7 +133,7 @@ const StudentPage = () => {
                         {students.map(student => (
                             <div
                                 key={student.studentId}
-                                className="grid grid-cols-3 items-center px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300"
+                                className="grid grid-cols-3 items-center text-sm px-6 py-2 hover:bg-gray-50 border-t border-t-gray-300"
                             >
                                 <p className='font-mono'>{student.name}</p>
                                 <p className='font-mono'>{student.rollNo}</p>
