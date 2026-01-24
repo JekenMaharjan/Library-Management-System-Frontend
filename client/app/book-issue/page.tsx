@@ -2,11 +2,24 @@
 
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar'
-import { getBooks, getIssueBooks, searchBooks, searchIssueBooks } from '@/lib/api';
+import { bookReserve, getBooks, getIssueBooks, getStudents, searchBooks, searchIssueBooks } from '@/lib/api';
 import React, { useEffect, useState } from 'react'
 import { IoMdSearch } from 'react-icons/io';
 import { ImCross } from "react-icons/im";
 import { FaCheck } from "react-icons/fa";
+
+type Student = {
+    studentId: number;
+    name: string;
+    rollNo: string;
+};
+
+type Book = {
+    bookId: number;
+    title: string;
+    author: string;
+    totalStock: number;
+};
 
 type IssueBook = {
     issueId: number;
@@ -17,28 +30,29 @@ type IssueBook = {
     isReturned: boolean;
 };
 
-type Book = {
-    bookId: number;
-    title: string;
-    author: string;
-    totalStock: number;
-};
-
 const BookIssuePage = () => {
     const [issueBooks, setIssueBooks] = useState<IssueBook[]>([]);
     const [books, setBooks] = useState<Book[]>([]);
-    // const [isModalOpen, setIsModalOpen] = useState(false);
-    // const [currentBook, setCurrentBook] = useState<Book | null>(null);
-    // const [formData, setFormData] = useState({ title: "", author: "", totalStock: "" });
+    const [students, setStudents] = useState<Student[]>([]);
+
     const [searchQuery, setSearchQuery] = useState("");
     const [searchIssueQuery, setSearchIssueQuery] = useState("");
 
-    // Load IssuedBooks from API
+    const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+    const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
+    const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+    const [studentRollInput, setStudentRollInput] = useState("");
+
+    // ==================================================================
+
+    // Load IssuedBooks, Books and Students data from API in first load
     useEffect(() => {
         loadIssueBooks();
         loadBooks();
+        loadStudents();
     }, []);
 
+    // Load IssuedBooks data
     const loadIssueBooks = async () => {
         try {
             const data = await getIssueBooks();
@@ -48,34 +62,66 @@ const BookIssuePage = () => {
         }
     };
 
+    // Load Books data
     const loadBooks = async () => {
+        try {
+            const data = await getBooks();
+
+            // show only available books
+            const availableBooks = data.filter(
+                (book: Book) => book.totalStock > 0
+            );
+
+            setBooks(availableBooks);
+        } catch (error) {
+            console.error("Failed to fetch Books", error);
+        }
+    };
+
+    // Load Students data
+    const loadStudents = async () => {
             try {
-                const data = await getBooks();
-                setBooks(data);
+                const data = await getStudents(); 
+                setStudents(data);
             } catch (error) {
-                console.error("Failed to fetch Books", error);
+                console.error("Failed to fetch students", error);
             }
         };
 
+    // ==================================================================
+
+    // Format Date
     const formatDate = (date?: string | null) =>
         date ? new Date(date).toLocaleDateString() : "\u2014";
 
-    const formatStatus = (value?: boolean) => 
+    // Format Status
+    const formatStatus = (value?: boolean) =>
         value === true ? <FaCheck className='text-green-500' /> : <ImCross className='text-red-500' />;
+
+    // ==================================================================
 
     // Search available books by title
     const handleAvaBooksSearch = async () => {
         try {
             if (!searchQuery.trim()) {
-                loadBooks(); // show all books if search is empty
+                loadBooks();
                 return;
             }
-            const data = await searchBooks(searchQuery); // search by rollNo
-            setBooks(data);
+
+            const data = await searchBooks(searchQuery);
+
+            // show only books with stock > 0
+            const availableBooks = data.filter(
+                (book: Book) => book.totalStock > 0
+            );
+
+            setBooks(availableBooks);
         } catch (error) {
             console.error("Search failed", error);
         }
     };
+
+    // ==================================================================
 
     // Search issued books by title
     const handleIssuedSearch = async () => {
@@ -91,57 +137,72 @@ const BookIssuePage = () => {
         }
     };
 
-    /*
-    // Open Add Modal
-    const openAddModal = () => {
-        setCurrentBook(null);
-        setFormData({ title: "", author: "", totalStock: "" });
-        setIsModalOpen(true);
+    // ==================================================================
+
+    // Reserve Book Pop UP Container
+    const handleReserveBook = (book: Book) => {
+        setSelectedBook(book);
+        setIsReserveModalOpen(true);
     };
 
-    // Open Edit Modal
-    const openEditModal = (book: Book) => {
-        setCurrentBook(book);
-        setFormData({
-            title: book.title,
-            author: book.author,
-            totalStock: book.totalStock.toString()
-        });
-        setIsModalOpen(true);
-    };
+    // ==================================================================
 
-    // Handle form submit
-    const handleSubmit = () => {
-        // Validation
-        if (!formData.title.trim() || !formData.author.trim() || !formData.totalStock.trim()) {
-            alert("Please fill all fields");
+    // Confirm Reserve Book Form
+    const confirmReserveBook = async () => {
+        if (!selectedBook) {
+            alert("Please select a book");
             return;
         }
 
-        if (currentBook) {
-            // Update frontend
-            updateBookFrontend(currentBook.bookId, formData);
-
-            // Update backend
-            updateBook(currentBook.bookId, {
-                title: formData.title,
-                author: formData.author,
-                totalStock: Number(formData.totalStock),
-            });
-        } else {
-            // Add frontend + backend
-            addBookFrontend({
-                title: formData.title,
-                author: formData.author,
-                totalStock: Number(formData.totalStock),
-            });
+        if (!studentRollInput.trim()) {
+            alert("Please enter student roll number");
+            return;
         }
 
-        setIsModalOpen(false);
+        const student = students.find(
+            s =>
+                s.rollNo.trim().toLowerCase() ===
+                studentRollInput.trim().toLowerCase()
+        );
+
+        if (!student) {
+            alert("Student not found");
+            return;
+        }
+
+        try {
+            await bookReserve({
+                bookId: selectedBook.bookId,
+                studentId: student.studentId,
+            });
+
+            alert("Book reserved successfully");
+
+            // reset state
+            setIsReserveModalOpen(false);
+            setStudentRollInput("");
+            setSelectedBook(null);
+
+            // reload data
+            await loadBooks();
+            await loadIssueBooks();
+        } catch (error: any) {
+            const message =
+                error.response?.data?.message ||
+                error.response?.data ||
+                "Book not available";
+
+            alert(message);
+        }
     };
 
-    
-    */
+
+    // ==================================================================
+
+    const handleReturnBook = () => {
+
+    }
+
 
     return (
         <div className="flex">
@@ -153,6 +214,7 @@ const BookIssuePage = () => {
 
                 {/* Main Content */}
                 <main className="flex-1 p-6 overflow-auto">
+                    {/* Book Circulation */}
                     <div className='flex justify-between items-center px-3 mb-5'>
                         <h1 className="text-3xl text-orange-600 font-semibold">Book Circulation</h1>
                         <div className='flex h-10'>
@@ -167,12 +229,14 @@ const BookIssuePage = () => {
                                 <button
                                     onClick={handleIssuedSearch}
                                     className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'>
-                                        <IoMdSearch size={29} />
+                                    <IoMdSearch size={29} />
                                 </button>
 
                             </span>
                         </div>
                     </div>
+
+                    {/* ============================================================================================================ */}
 
                     {/* Issued Books Table */}
                     <div className="bg-white border-2 border-orange-200 rounded-lg shadow overflow-hidden mb-10">
@@ -200,21 +264,25 @@ const BookIssuePage = () => {
                                     <p className='font-mono text-sm'>{formatStatus(issueBook.isReturned)}</p>
 
                                     <div className="flex font-semibold justify-center gap-3 py-2">
-                                        <button
-                                            // onClick={}
-                                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md text-sm">
-                                            Return Book
-                                        </button>
+                                        {issueBook.isReturned ? "-" :
+                                            <button
+                                                onClick={handleReturnBook}
+                                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md text-sm">
+                                                Return Book
+                                            </button>
+                                        }
                                     </div>
                                 </div>
                             ))
                         )}
                     </div>
 
+                    {/* ============================================================================================================ */}
+
                     {/* Thicker solid bar */}
                     {/* <hr className="my-7 h-1 bg-orange-400 border-0" /> */}
 
-                    {/* Books Table */}
+                    {/* Available Books */}
                     <div className='flex justify-between items-center px-3 mb-5'>
                         <h1 className="text-3xl text-orange-600 font-semibold">Available Book</h1>
                         <div className='flex h-10'>
@@ -226,7 +294,7 @@ const BookIssuePage = () => {
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
-                                <button 
+                                <button
                                     onClick={handleAvaBooksSearch}
                                     className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'>
                                     <IoMdSearch size={29} />
@@ -234,8 +302,10 @@ const BookIssuePage = () => {
                             </span>
                         </div>
                     </div>
-                    
-                    {/* Available Books */}
+
+                    {/* ============================================================================================================ */}
+
+                    {/* Available Books Table*/}
                     <div className="bg-white border-2 border-orange-200 rounded-lg shadow-md overflow-hidden">
                         <div className="grid grid-cols-4 place-items-center font-semibold bg-orange-200 px-6 py-2">
                             <span>Title</span>
@@ -246,7 +316,7 @@ const BookIssuePage = () => {
 
                         {books.length === 0 ? (
                             <p className='p-4 text-center text-sm text-gray-500'>No Books Found...</p>
-                        ) : ( 
+                        ) : (
                             books.map((book) => (
                                 <div
                                     key={book.bookId}
@@ -258,7 +328,7 @@ const BookIssuePage = () => {
 
                                     <div className="flex font-semibold justify-center gap-3 py-2">
                                         <button
-                                            // onClick={}
+                                            onClick={() => handleReserveBook(book)}
                                             className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-md text-sm">
                                             Reserve Book
                                         </button>
@@ -268,56 +338,51 @@ const BookIssuePage = () => {
                         )}
                     </div>
 
-                    {/* Modal
-                    {isModalOpen && (
+                    {/* ============================================================================================================ */}
+
+                    {/* Modal for Reserve and Return Books */}
+                    {isReserveModalOpen && selectedBook && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
-                            <div className="bg-white rounded-lg shadow-lg w-80 p-6">
-                                <h2 className="text-xl font-semibold mb-4">
-                                    {currentBook ? "Edit Book" : "Add Book"}
+                            <div className="bg-white rounded-lg shadow-lg w-96 p-6">
+                                <h2 className="text-xl font-semibold mb-4 text-orange-600">
+                                    Reserve Book
                                 </h2>
 
-                                <div className="flex flex-col gap-3">
-                                    <input
-                                        type="text"
-                                        placeholder="Title"
-                                        className="border px-3 py-2 rounded-md w-full"
-                                        value={formData.title}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Author"
-                                        className="border px-3 py-2 rounded-md w-full"
-                                        value={formData.author}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
-                                    />
-                                    <input
-                                        type="number"
-                                        placeholder="Total Stock"
-                                        className="border px-3 py-2 rounded-md w-full"
-                                        value={formData.totalStock}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, totalStock: e.target.value }))}
-                                    />
+                                {/* Book details (read-only) */}
+                                <div className="mb-4 space-y-2 text-sm">
+                                    <p><strong>Title:</strong> {selectedBook.title}</p>
+                                    <p><strong>Author:</strong> {selectedBook.author}</p>
+                                    <p><strong>Available Stock:</strong> {selectedBook.totalStock}</p>
                                 </div>
 
-                                <div className="flex justify-end gap-3 mt-4">
+                                {/* Student input */}
+                                <input
+                                    type="text"
+                                    placeholder="Enter Student Roll No.."
+                                    className="border px-3 py-2 rounded-md w-full mb-4"
+                                    value={studentRollInput}
+                                    onChange={(e) => setStudentRollInput(e.target.value)}
+                                />
+
+                                {/* Actions */}
+                                <div className="flex justify-end gap-3">
                                     <button
                                         className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-md"
-                                        onClick={() => setIsModalOpen(false)}
+                                        onClick={() => setIsReserveModalOpen(false)}
                                     >
                                         Cancel
                                     </button>
+
                                     <button
                                         className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
-                                        onClick={handleSubmit}
+                                        onClick={confirmReserveBook}
                                     >
-                                        {currentBook ? "Update" : "Add"}
+                                        Confirm Reserve
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    )} */}
-
+                    )}
                 </main>
             </div>
         </div>

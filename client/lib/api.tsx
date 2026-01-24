@@ -130,3 +130,15 @@ export const searchIssueBooks = async (title: string) => {
         throw error;
     }
 }
+
+// Reserve Book
+export const bookReserve = async (issueData: { bookId: number; studentId: number }) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/issues/issue`,
+            issueData // send directly as body
+        );
+        return response.data;
+    } catch (error: any) {
+        throw error; // let UI decide how to show the message
+    }
+}
