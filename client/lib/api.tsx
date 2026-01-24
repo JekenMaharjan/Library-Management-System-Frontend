@@ -142,3 +142,26 @@ export const bookReserve = async (issueData: { bookId: number; studentId: number
         throw error;
     }
 };
+
+// Return book
+export const returnReserve = async (issueData: { issueId: number}) => {
+    try {
+        const { data } = await axios.post(
+            `${API_BASE_URL}/issues/return?issueId=${issueData.issueId}`
+        );
+        return data;
+    } catch (error: any) {
+        throw error;
+    }
+};
+
+export const deleteIssue = async (issueData: { issueId: number }) => {
+    try {
+        const { data } = await axios.delete(
+            `${API_BASE_URL}/issues/return?issueId=${issueData.issueId}`
+        );
+        return data;
+    } catch (error: any) {
+        throw error;
+    }
+}

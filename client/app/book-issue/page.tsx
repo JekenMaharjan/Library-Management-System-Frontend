@@ -2,11 +2,12 @@
 
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar'
-import { bookReserve, getBooks, getIssueBooks, getStudents, searchBooks, searchIssueBooks } from '@/lib/api';
+import { bookReserve, deleteIssue, getBooks, getIssueBooks, getStudents, returnReserve, searchBooks, searchIssueBooks } from '@/lib/api';
 import React, { useEffect, useState } from 'react'
 import { IoMdSearch } from 'react-icons/io';
 import { ImCross } from "react-icons/im";
 import { FaCheck } from "react-icons/fa";
+import { IoTrashBin } from "react-icons/io5";
 
 type Student = {
     studentId: number;
@@ -175,13 +176,35 @@ const BookIssuePage = () => {
         }
     };
 
+    // ==================================================================
+
+    const handleReturnBook = async (issueId: number) => {
+        try {
+            await returnReserve({ issueId });
+            alert("Book returned successfully");
+
+            // reload data
+            await loadBooks();
+            await loadIssueBooks();
+        } catch {
+            alert("Failed to return book");
+        }
+    };
 
     // ==================================================================
 
-    const handleReturnBook = () => {
+    const handleDelete = async (issueId: number) => {
+        try {
+            await deleteIssue({ issueId });
+            // alert("Issued Book deleted successfully");
 
-    }
-
+            // reload data
+            await loadBooks();
+            await loadIssueBooks();
+        } catch {
+            alert("Failed to delete issued book");
+        }
+    };
 
     return (
         <div className="flex">
@@ -242,14 +265,20 @@ const BookIssuePage = () => {
                                     <p className="font-mono text-sm">{issueBook.returnDate ? formatDate(issueBook.returnDate) : "-"}</p>
                                     <p className='font-mono text-sm'>{formatStatus(issueBook.isReturned)}</p>
 
-                                    <div className="flex font-semibold justify-center gap-3 py-2">
-                                        {issueBook.isReturned ? "-" :
+                                    <div className="flex font-semibold justify-center gap-5 py-2">
+                                        {issueBook.isReturned ? 
                                             <button
-                                                onClick={handleReturnBook}
+                                                onClick={() => handleDelete(issueBook.issueId)}>
+                                                <IoTrashBin className='text-orange-400' />
+                                            </button>
+                                        :
+                                            <button
+                                                onClick={() => handleReturnBook(issueBook.issueId)}
                                                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-md text-sm">
                                                 Return Book
                                             </button>
                                         }
+                                        
                                     </div>
                                 </div>
                             ))
