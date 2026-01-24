@@ -148,9 +148,9 @@ const StudentPage = () => {
                     {/* Students Table */}
                     <div className="bg-white border-2 border-orange-200 rounded-lg shadow-md overflow-hidden">
                         <div className="grid grid-cols-3 place-items-center text-gray-900 font-semibold bg-orange-200 px-6 py-2">
-                            <span>Name</span>
-                            <span>Roll No</span>
-                            <span>Actions</span>
+                            <span>Student's Name</span>
+                            <span>Roll No.</span>
+                            <span>Action</span>
                         </div>
 
                         {students.length === 0 ? (

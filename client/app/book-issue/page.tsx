@@ -146,29 +146,16 @@ const BookIssuePage = () => {
     };
 
     // ==================================================================
-
-    // Confirm Reserve Book Form
+    
+    // Confirm Reserve Book
     const confirmReserveBook = async () => {
-        if (!selectedBook) {
-            alert("Please select a book");
-            return;
-        }
-
-        if (!studentRollInput.trim()) {
-            alert("Please enter student roll number");
-            return;
-        }
+        if (!selectedBook) return alert("Please select a book");
+        if (!studentRollInput.trim()) return alert("Please enter student roll number");
 
         const student = students.find(
-            s =>
-                s.rollNo.trim().toLowerCase() ===
-                studentRollInput.trim().toLowerCase()
+            s => s.rollNo.trim().toLowerCase() === studentRollInput.trim().toLowerCase()
         );
-
-        if (!student) {
-            alert("Student not found");
-            return;
-        }
+        if (!student) return alert("Student not found");
 
         try {
             await bookReserve({
@@ -178,21 +165,13 @@ const BookIssuePage = () => {
 
             alert("Book reserved successfully");
 
-            // reset state
             setIsReserveModalOpen(false);
             setStudentRollInput("");
             setSelectedBook(null);
 
-            // reload data
-            await loadBooks();
-            await loadIssueBooks();
-        } catch (error: any) {
-            const message =
-                error.response?.data?.message ||
-                error.response?.data ||
-                "Book not available";
-
-            alert(message);
+            await Promise.all([loadBooks(), loadIssueBooks()]);
+        } catch {
+            alert("Failed to reserve book");
         }
     };
 
@@ -241,8 +220,8 @@ const BookIssuePage = () => {
                     {/* Issued Books Table */}
                     <div className="bg-white border-2 border-orange-200 rounded-lg shadow overflow-hidden mb-10">
                         <div className="grid grid-cols-6 place-items-center font-semibold bg-orange-200 px-6 py-2">
-                            <span>Title</span>
-                            <span>Name</span>
+                            <span>Book</span>
+                            <span>Student</span>
                             <span>Issue Date</span>
                             <span>Return Date</span>
                             <span>Return Status</span>
@@ -308,7 +287,7 @@ const BookIssuePage = () => {
                     {/* Available Books Table*/}
                     <div className="bg-white border-2 border-orange-200 rounded-lg shadow-md overflow-hidden">
                         <div className="grid grid-cols-4 place-items-center font-semibold bg-orange-200 px-6 py-2">
-                            <span>Title</span>
+                            <span>Book</span>
                             <span>Author</span>
                             <span>Stock</span>
                             <span>Action</span>

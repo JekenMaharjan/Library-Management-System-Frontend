@@ -131,14 +131,14 @@ export const searchIssueBooks = async (title: string) => {
     }
 }
 
-// Reserve Book
+// Reserve book
 export const bookReserve = async (issueData: { bookId: number; studentId: number }) => {
     try {
-        const response = await axios.post(`${API_BASE_URL}/issues/issue`,
-            issueData // send directly as body
+        const { data } = await axios.post(
+            `${API_BASE_URL}/issues/issue?bookId=${issueData.bookId}&studentId=${issueData.studentId}`
         );
-        return response.data;
+        return data;
     } catch (error: any) {
-        throw error; // let UI decide how to show the message
+        throw error;
     }
-}
+};
