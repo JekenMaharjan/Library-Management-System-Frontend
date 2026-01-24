@@ -139,9 +139,9 @@ const StudentPage = () => {
 
                 {/* Main content */}
                 <main className="flex-1 p-6 overflow-auto">
-                    <div className='flex justify-between items-center px-3 mb-5'>
-                        <h1 className="text-3xl text-orange-600 font-semibold">Student Records</h1>
-                        <div className='flex gap-10 h-10'>
+                    <div className='flex flex-col gap-5 px-3 mb-5'>
+                        <h1 className="text-3xl text-orange-600 text-center font-semibold">Student Records</h1>
+                        <div className='flex justify-end gap-10 h-10'>
                             <span className='flex items-center border rounded-xl'>
                                 <input
                                     type="text"

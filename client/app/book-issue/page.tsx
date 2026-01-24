@@ -228,6 +228,7 @@ const BookIssuePage = () => {
 
     return (
         <div className="flex">
+            {/* Sidebar */}
             <Sidebar />
 
             <div className="flex-1 ml-70 flex flex-col min-h-screen">
@@ -237,9 +238,9 @@ const BookIssuePage = () => {
                 {/* Main Content */}
                 <main className="flex-1 p-6 overflow-auto">
                     {/* Book Circulation */}
-                    <div className='flex justify-between items-center px-3 mb-5'>
-                        <h1 className="text-3xl text-orange-600 font-semibold">Book Circulation</h1>
-                        <div className='flex h-10'>
+                    <div className='flex flex-col gap-5 px-3 mb-5'>
+                        <h1 className="text-3xl text-orange-600 text-center font-semibold">Book Circulation</h1>
+                        <div className='flex justify-end h-10'>
                             <span className='flex items-center border rounded-xl'>
                                 <input
                                     type="text"
@@ -266,7 +267,7 @@ const BookIssuePage = () => {
                     {/* ============================================================================================================ */}
 
                     {/* Issued Books Table */}
-                    <div className="bg-white border-2 border-orange-200 rounded-lg shadow overflow-hidden mb-10">
+                    <div className="bg-white border-2 border-orange-200 rounded-lg shadow overflow-hidden mb-20">
                         <div className="grid grid-cols-6 place-items-center font-semibold bg-orange-200 px-6 py-2">
                             <span>Book</span>
                             <span>Student</span>
@@ -316,9 +317,9 @@ const BookIssuePage = () => {
                     {/* <hr className="my-7 h-1 bg-orange-400 border-0" /> */}
 
                     {/* Available Books */}
-                    <div className='flex justify-between items-center px-3 mb-5'>
-                        <h1 className="text-3xl text-orange-600 font-semibold">Available Book</h1>
-                        <div className='flex h-10'>
+                    <div className='flex flex-col px-3 gap-5 mb-5'>
+                        <h1 className="text-3xl text-orange-600 text-center font-semibold">Available Book</h1>
+                        <div className='flex justify-end h-10'>
                             <span className='flex items-center border rounded-xl'>
                                 <input
                                     type="text"
