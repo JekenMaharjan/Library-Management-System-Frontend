@@ -2,6 +2,30 @@ import axios from "axios";
 
 const API_BASE_URL = "http://localhost:5000/api";
 
+
+// ================================ DashBoard ================================
+
+// Get Total Number of totalBooks, issuedBooks and availableBooks
+export const getIssuedBook = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/books/stats`);
+        return response.data;
+    } catch (error: any) {
+        throw error;
+    }
+}
+
+// Get total number of Students
+export const getTotalStudent = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/students/total`);
+        return response.data;
+    } catch (error: any) {
+        throw error;
+    }
+}
+
+
 // ================================ Students ================================
 
 // Create student
@@ -155,6 +179,7 @@ export const returnReserve = async (issueData: { issueId: number}) => {
     }
 };
 
+// Delete returned book
 export const deleteIssue = async (issueData: { issueId: number }) => {
     try {
         const { data } = await axios.delete(
