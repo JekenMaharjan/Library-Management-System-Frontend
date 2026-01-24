@@ -22,8 +22,17 @@ const BookPage = () => {
 
     // Load books from API
     useEffect(() => {
-        loadBooks();
-    }, []);
+        const timer = setTimeout(() => {
+            if (searchQuery.trim()) {
+                handleSearch();
+            } else {
+                loadBooks(); // empty search → show all
+            }
+        }, 400); // 300–500ms is standard
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // ===================================================================================
 
     const loadBooks = async () => {
         try {
@@ -33,6 +42,8 @@ const BookPage = () => {
             console.error("Failed to fetch Books", error);
         }
     };
+
+    // ===================================================================================
 
     // Search student by title
     const handleSearch = async () => {
@@ -49,6 +60,8 @@ const BookPage = () => {
         }
     };
 
+    // ===================================================================================
+
     // Add new book
     const addBookFrontend = async (bookData: { title: string; author: string; totalStock: number }) => {
         try {
@@ -58,6 +71,8 @@ const BookPage = () => {
             console.error("Failed to create book", error);
         }
     }
+
+    // ===================================================================================
 
     // Update book frontend
     const updateBookFrontend = (bookId: number, updatedData: { title?: string; author?: string; totalStock?: string }) => {
@@ -72,6 +87,8 @@ const BookPage = () => {
             prevBooks.map(b => (b.bookId === bookId ? updatedBook : b))
         );
     };
+
+    // ===================================================================================
 
     // Open Add Modal
     const openAddModal = () => {
@@ -90,6 +107,8 @@ const BookPage = () => {
         });
         setIsModalOpen(true);
     };
+
+    // ===================================================================================
 
     // Handle form submit
     const handleSubmit = () => {
@@ -121,12 +140,16 @@ const BookPage = () => {
         setIsModalOpen(false);
     };
 
+    // ===================================================================================
+
     // Delete book
     const handleDelete = async (id: number) => {
         await deleteBook(id);
         loadBooks();
     };
 
+    // ===================================================================================
+    
     return (
         <div className="flex">
             <Sidebar />
@@ -147,8 +170,13 @@ const BookPage = () => {
                                     className="border-r text-sm border-gray-400 focus:outline-0 rounded-l-xl px-3 py-2"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            handleSearch();
+                                        }
+                                    }}
                                 />
-                                <button 
+                                <button
                                     onClick={handleSearch}
                                     className='hover:bg-gray-100 rounded-r-xl w-full h-full px-4'
                                 >

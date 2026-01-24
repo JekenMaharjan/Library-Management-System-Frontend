@@ -21,8 +21,17 @@ const StudentPage = () => {
 
     // Load all students on page load
     useEffect(() => {
-        fetchStudents(); // no name = load all
-    }, []);
+        const timer = setTimeout(() => {
+            if (searchQuery.trim()) {
+                handleSearch();
+            } else {
+                fetchStudents(); // empty search → show all
+            }
+        }, 400); // 300–500ms is standard
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // ==============================================================================
 
     // Load all students
     const fetchStudents = async () => {
@@ -34,6 +43,7 @@ const StudentPage = () => {
         }
     };
 
+    // ==============================================================================
 
     // Search student by roll number
     const handleSearch = async () => {
@@ -50,6 +60,8 @@ const StudentPage = () => {
         }
     };
 
+    // ==============================================================================
+
     // Add student
     const addStudentFrontend = async (studentData: { name: string; rollNo: string }) => {
         try {
@@ -60,6 +72,8 @@ const StudentPage = () => {
         }
     }
 
+    // ==============================================================================
+
     // Update student in frontend
     const updateStudentFrontend = (studentId: number, updatedData: { name: string; rollNo: string }) => {
         setStudents(prev =>
@@ -67,6 +81,8 @@ const StudentPage = () => {
         );
     };
 
+    // ==============================================================================
+    
     // Open Add modal
     const openAddModal = () => {
         setCurrentStudent(null);
@@ -80,6 +96,8 @@ const StudentPage = () => {
         setFormData({ name: student.name, rollNo: student.rollNo });
         setIsModalOpen(true);
     };
+
+    // ==============================================================================
 
     // Handle form submit
     const handleSubmit = () => {
@@ -103,12 +121,16 @@ const StudentPage = () => {
         setIsModalOpen(false);
     };
 
+    // ==============================================================================
+
     // Delete student
     const handleDelete = async (id: number) => {
         await deleteStudent(id);
         fetchStudents();
     };
 
+    // ==============================================================================
+    
     return (
         <div className="flex">
             <Sidebar />
@@ -129,6 +151,11 @@ const StudentPage = () => {
                                     className="border-r text-sm border-gray-400 focus:outline-0 rounded-l-xl px-3 py-2"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            handleSearch();
+                                        }
+                                    }}
                                 />
                                 <button 
                                     onClick={handleSearch}

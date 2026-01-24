@@ -39,8 +39,8 @@ const BookIssuePage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchIssueQuery, setSearchIssueQuery] = useState("");
 
-    const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
     const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
+    
     const [selectedBook, setSelectedBook] = useState<Book | null>(null);
     const [studentRollInput, setStudentRollInput] = useState("");
 
@@ -48,10 +48,21 @@ const BookIssuePage = () => {
 
     // Load IssuedBooks, Books and Students data from API in first load
     useEffect(() => {
-        loadIssueBooks();
-        loadBooks();
-        loadStudents();
-    }, []);
+        const timer = setTimeout(() => {
+            if (searchQuery.trim() || searchIssueQuery.trim()) {
+                handleIssuedSearch();
+                handleAvaBooksSearch();
+            } 
+            else {
+                loadIssueBooks();
+                loadBooks();
+                loadStudents(); // empty search → show all
+            }
+        }, 400); // 300–500ms is standard
+        return () => clearTimeout(timer);
+    }, [searchQuery, searchIssueQuery]);
+
+    // ===================================================================================
 
     // Load IssuedBooks data
     const loadIssueBooks = async () => {
@@ -62,6 +73,8 @@ const BookIssuePage = () => {
             console.error("Failed to fetch Books", error);
         }
     };
+
+    // ===================================================================================
 
     // Load Books data
     const loadBooks = async () => {
@@ -78,6 +91,8 @@ const BookIssuePage = () => {
             console.error("Failed to fetch Books", error);
         }
     };
+
+    // ===================================================================================
 
     // Load Students data
     const loadStudents = async () => {
@@ -206,6 +221,8 @@ const BookIssuePage = () => {
         }
     };
 
+    // ===================================================================================
+
     return (
         <div className="flex">
             <Sidebar />
@@ -227,6 +244,11 @@ const BookIssuePage = () => {
                                     className="border-r border-gray-400 text-sm focus:outline-0 rounded-l-xl px-3 py-2"
                                     value={searchIssueQuery}
                                     onChange={(a) => setSearchIssueQuery(a.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            handleIssuedSearch();
+                                        }
+                                    }}
                                 />
                                 <button
                                     onClick={handleIssuedSearch}
@@ -301,6 +323,11 @@ const BookIssuePage = () => {
                                     className="border-r border-gray-400 text-sm focus:outline-0 rounded-l-xl px-3 py-2"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            handleAvaBooksSearch();
+                                        }
+                                    }}
                                 />
                                 <button
                                     onClick={handleAvaBooksSearch}
