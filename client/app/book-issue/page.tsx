@@ -9,12 +9,14 @@ import { ImCross } from "react-icons/im";
 import { FaCheck } from "react-icons/fa";
 import { IoTrashBin } from "react-icons/io5";
 
+// data types of students' details
 type Student = {
     studentId: number;
     name: string;
     rollNo: string;
 };
 
+// data types of books' details
 type Book = {
     bookId: number;
     title: string;
@@ -22,6 +24,7 @@ type Book = {
     totalStock: number;
 };
 
+// data types of issueBooks' details
 type IssueBook = {
     issueId: number;
     bookTitle: string;

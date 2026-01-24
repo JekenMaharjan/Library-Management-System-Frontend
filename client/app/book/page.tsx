@@ -6,6 +6,7 @@ import { createBook, deleteBook, getBooks, searchBooks, updateBook } from '@/lib
 import React, { useEffect, useState } from 'react'
 import { IoMdSearch } from 'react-icons/io';
 
+// data types of books' details
 type Book = {
     bookId: number;
     title: string;
@@ -149,7 +150,7 @@ const BookPage = () => {
     };
 
     // ===================================================================================
-    
+
     return (
         <div className="flex">
             <Sidebar />

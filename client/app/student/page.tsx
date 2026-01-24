@@ -6,6 +6,7 @@ import { createStudent, deleteStudent, getStudents, searchStudents, updateStuden
 import React, { useEffect, useState } from 'react'
 import { IoMdSearch } from "react-icons/io";
 
+// data types of students' details
 type Student = {
     studentId: number;
     name: string;
@@ -52,7 +53,6 @@ const StudentPage = () => {
                 fetchStudents(); // show all students if search is empty
                 return;
             }
-
             const data = await searchStudents(searchQuery); // search by rollNo
             setStudents(data);
         } catch (error) {
@@ -106,18 +106,15 @@ const StudentPage = () => {
             alert("Please fill in both Name and Roll No.");
             return;
         }
-
         if (currentStudent) {
             // Update frontend
             updateStudentFrontend(currentStudent.studentId, formData);
-
             // Update backend
             updateStudentApi(currentStudent.studentId, formData);
         } else {
             // Add frontend + backend
             addStudentFrontend(formData);
         }
-
         setIsModalOpen(false);
     };
 
@@ -133,8 +130,9 @@ const StudentPage = () => {
     
     return (
         <div className="flex">
+            {/* sidebar */}
             <Sidebar />
-
+            
             <div className="flex-1 ml-70 flex flex-col min-h-screen">
                 {/* Header */}
                 <Header />
