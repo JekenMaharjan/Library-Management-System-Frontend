@@ -2,22 +2,50 @@
 
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
-import { getIssuedBook, getTotalStudent } from '@/lib/api'
+import { getIssueBooks, getIssuedBook, getTotalStudent } from '@/lib/api'
 import React, { useEffect, useState } from 'react'
 import { FaAngleDoubleUp, FaKey } from 'react-icons/fa'
 import { GiThink } from 'react-icons/gi'
 import { IoLibrarySharp } from "react-icons/io5";
 import { SiMoneygram } from 'react-icons/si'
 
+// data types of statistics of Books' details
 type BookStats = {
     totalBooks: number;
     issuedBooks: number;
     availableBooks: number;
 };
 
+// data types of statistics of Students' details
 type StudentStats = {
     totalStudents: number;
 }
+
+// data types of issueBooks' details
+type IssueBook = {
+    issueId: number;
+    bookTitle: string;
+    studentName: string;
+    studentRollNo: string;
+    issueDate: string;
+    returnDate: string | null;
+    isReturned: boolean;
+};
+
+// data types of books' details
+type Book = {
+    bookId: number;
+    title: string;
+    author: string;
+    totalStock: number;
+};
+
+// data types of students' details
+type Student = {
+    studentId: number;
+    name: string;
+    rollNo: string;
+};
 
 const motiveCard = [
     {
@@ -66,11 +94,15 @@ const DashboardPage = () => {
     const [bookStats, setBookStats] = useState<BookStats | null>(null);
     const [studentStats, setStudentStats] = useState<StudentStats | null>(null);
 
+    const [issueBooks, setIssueBooks] = useState<IssueBook[]>([]);
+    const [students, setStudents] = useState <Student[]>([]);
+
     const [currentCard, setCurrentCard] = useState(motiveCard[0]);
 
     useEffect(() => {
         loadBookStats();
         loadStudentStats();
+        loadIssueBooks();
     }, []);
 
     useEffect(() => {
@@ -78,9 +110,7 @@ const DashboardPage = () => {
             // Pick a random index
             const randomIndex = Math.floor(Math.random() * motiveCard.length);
             setCurrentCard(motiveCard[randomIndex]);
-        }, 5000); // Change every 5 seconds
-
-
+        }, 3000); // Change every 5 seconds
         // Cleanup on unmount
         return () => clearInterval(interval);
     }, []);
@@ -108,8 +138,6 @@ const DashboardPage = () => {
         },
     ];
 
-    
-
     const loadBookStats = async () => {
         try {
             const data = await getIssuedBook();
@@ -126,6 +154,27 @@ const DashboardPage = () => {
         } catch (error) {
             console.error("Failed to fetch book stats", error);
         }
+    };
+
+    // Load IssuedBooks data
+    const loadIssueBooks = async () => {
+        try {
+            const data = await getIssueBooks();
+            setIssueBooks(data);
+        } catch (error) {
+            console.error("Failed to fetch Books", error);
+        }
+    };
+
+    const formatDateTime = (dateString: string) => {
+        return new Date(dateString).toLocaleString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        });
     };
 
     return (
@@ -164,6 +213,76 @@ const DashboardPage = () => {
                         </div>
                         <div>
                             {currentCard.icon}
+                        </div>
+                    </div>
+
+                    {/* Last Section */}
+                    <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-5">
+                        <h2 className="text-lg font-semibold text-orange-600 mb-4">
+                            Recent Activity
+                        </h2>
+
+                        <div className="space-y-4">
+                            {[...issueBooks]
+                                .sort((a, b) => {
+                                    const dateA =
+                                        a.isReturned && a.returnDate ? a.returnDate : a.issueDate;
+                                    const dateB =
+                                        b.isReturned && b.returnDate ? b.returnDate : b.issueDate;
+
+                                    return new Date(dateB).getTime() - new Date(dateA).getTime();
+                                })
+                                .slice(0, 5)
+                                .map(issueBook => {
+                                    const actionText = issueBook.isReturned ? "returned" : "borrowed";
+                                    const actionColor = issueBook.isReturned
+                                        ? "text-blue-600"
+                                        : "text-green-600";
+                                    const dotColor = issueBook.isReturned
+                                        ? "bg-blue-500"
+                                        : "bg-green-500";
+
+                                    const activityDate =
+                                        issueBook.isReturned && issueBook.returnDate
+                                            ? issueBook.returnDate
+                                            : issueBook.issueDate;
+
+                                    return (
+                                        <div
+                                            key={issueBook.issueId}
+                                            className="flex items-start gap-4 bg-white p-4 rounded-md border border-orange-300 hover:shadow-sm transition"
+                                        >
+                                            {/* Status Dot */}
+                                            <div className="mt-1">
+                                                <span
+                                                    className={`inline-block w-3 h-3 rounded-full ${dotColor}`}
+                                                />
+                                            </div>
+
+                                            {/* Info */}
+                                            <div className="flex-1">
+                                                <p className="font-medium italic">
+                                                    {issueBook.studentName}{" "}
+                                                    <span className={`font-semibold ${actionColor}`}>
+                                                        {actionText}
+                                                    </span>{" "}
+                                                    <span className="font-semibold">
+                                                        {issueBook.bookTitle}
+                                                    </span>
+                                                </p>
+
+                                                <p className="text-sm text-gray-500">
+                                                    Roll No: {issueBook.studentRollNo}
+                                                </p>
+                                            </div>
+
+                                            {/* Date */}
+                                            <div className="text-sm text-gray-400 whitespace-nowrap">
+                                                {formatDateTime(activityDate)}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                         </div>
                     </div>
                 </main>

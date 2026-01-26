@@ -29,7 +29,7 @@ const BookPage = () => {
             } else {
                 loadBooks(); // empty search → show all
             }
-        }, 400); // 300–500ms is standard
+        }, 500); // 300–500ms is standard
         return () => clearTimeout(timer);
     }, [searchQuery]);
 
